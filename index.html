@@ -4,71 +4,62 @@
     <meta charset="UTF-8">
     <title>SVG Zoom and Pan</title>
     <style>
-        body, html, #container {
-            margin: 0;
-            padding: 0;
+        #container {
+            position: relative;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             overflow: hidden;
-        }
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <!-- SVG will be loaded here -->
+        <!-- SVG will be inserted here -->
     </div>
 
     <script>
-        // Load SVG from an external file
         fetch('gameMap.svg')
             .then(response => response.text())
             .then(data => {
                 const container = document.getElementById('container');
                 container.innerHTML = data;
 
-                let svgElement = document.querySelector('svg');
-                svgElement.removeAttribute('width');
-                svgElement.removeAttribute('height');
-                svgElement.removeAttribute('viewBox');
-                svgElement.id = 'gameMap';
+                const svg = document.querySelector('svg');
+                let viewBox = svg.viewBox.baseVal;
 
                 let scale = 1;
                 let panX = 0;
                 let panY = 0;
 
-                // Function to update view
                 function updateView() {
-                    svgElement.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+                    svg.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
                 }
 
-                // Handle zoom based on cursor position
+                // Zoom with scroll wheel
                 container.addEventListener('wheel', function(event) {
                     event.preventDefault();
-                    const offsetX = event.clientX - container.getBoundingClientRect().left;
-                    const offsetY = event.clientY - container.getBoundingClientRect().top;
-                    const prevScale = scale;
 
-                    if (event.deltaY < 0) {
-                        scale *= 1.1;
+                    const x = event.clientX - container.getBoundingClientRect().left;
+                    const y = event.clientY - container.getBoundingClientRect().top;
+
+                    const oldScale = scale;
+
+                    if (event.deltaY > 0) {
+                        scale *= 0.9;
                     } else {
-                        scale /= 1.1;
+                        scale *= 1.1;
                     }
 
-                    panX -= offsetX * (1 - prevScale / scale);
-                    panY -= offsetY * (1 - prevScale / scale);
+                    panX += x * (1 - oldScale / scale);
+                    panY += y * (1 - oldScale / scale);
 
                     updateView();
                 });
 
-                // Handle pan (drag to move)
+                // Pan with drag
                 let dragging = false;
                 let lastX, lastY;
-                
+
                 container.addEventListener('mousedown', function(event) {
                     dragging = true;
                     lastX = event.clientX;
@@ -83,6 +74,7 @@
                     if (dragging) {
                         panX += event.clientX - lastX;
                         panY += event.clientY - lastY;
+
                         lastX = event.clientX;
                         lastY = event.clientY;
 
@@ -94,7 +86,7 @@
                 updateView();
             })
             .catch(error => {
-                console.error('Error loading SVG:', error);
+                console.error('Error:', error);
             });
     </script>
 </body>
