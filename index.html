@@ -30,8 +30,11 @@
             .then(data => {
                 const container = document.getElementById('container');
                 container.innerHTML = data;
-                
+
                 let svgElement = document.querySelector('svg');
+                svgElement.removeAttribute('width');
+                svgElement.removeAttribute('height');
+                svgElement.removeAttribute('viewBox');
                 svgElement.id = 'gameMap';
 
                 let scale = 1;
@@ -43,13 +46,11 @@
                     svgElement.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
                 }
 
-                // Zoom based on cursor position
+                // Handle zoom based on cursor position
                 container.addEventListener('wheel', function(event) {
                     event.preventDefault();
-
                     const offsetX = event.clientX - container.getBoundingClientRect().left;
                     const offsetY = event.clientY - container.getBoundingClientRect().top;
-
                     const prevScale = scale;
 
                     if (event.deltaY < 0) {
@@ -64,7 +65,7 @@
                     updateView();
                 });
 
-                // Pan (drag to move)
+                // Handle pan (drag to move)
                 let dragging = false;
                 let lastX, lastY;
                 
@@ -88,30 +89,6 @@
                         updateView();
                     }
                 });
-
-                // Add grid overlay
-                const gridLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                for (let x = 0; x < 1000; x += 50) {
-                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    line.setAttribute("x1", x);
-                    line.setAttribute("y1", 0);
-                    line.setAttribute("x2", x);
-                    line.setAttribute("y2", 1000);
-                    line.setAttribute("stroke", "gray");
-                    line.setAttribute("stroke-width", "1");
-                    gridLayer.appendChild(line);
-                }
-                for (let y = 0; y < 1000; y += 50) {
-                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    line.setAttribute("x1", 0);
-                    line.setAttribute("y1", y);
-                    line.setAttribute("x2", 1000);
-                    line.setAttribute("y2", y);
-                    line.setAttribute("stroke", "gray");
-                    line.setAttribute("stroke-width", "1");
-                    gridLayer.appendChild(line);
-                }
-                svgElement.appendChild(gridLayer);
 
                 // Initialize
                 updateView();
