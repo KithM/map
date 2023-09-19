@@ -19,75 +19,82 @@
 </head>
 <body>
     <div id="container">
-        <!-- Add your SVG content here -->
-        <svg id="gameMap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-            <circle cx="100" cy="100" r="50" fill="blue"/>
-            <rect x="300" y="300" width="200" height="100" fill="green"/>
-        </svg>
+        <!-- SVG will be loaded here -->
     </div>
 
     <script>
-        let svgElement = document.getElementById('gameMap');
-        let container = document.getElementById('container');
-        
-        let scale = 1;
-        let panX = 0;
-        let panY = 0;
-        
-        // Initialize view
-        function updateView() {
-            svgElement.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-        }
+        // Load SVG from an external file
+        fetch('gameMap.svg')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('container').innerHTML = data;
+                
+                let svgElement = document.querySelector('svg');
+                svgElement.id = 'gameMap';
+                let container = document.getElementById('container');
 
-        // Zoom in and out
-        container.addEventListener('wheel', function(event) {
-            event.preventDefault();
+                let scale = 1;
+                let panX = 0;
+                let panY = 0;
 
-            let offsetX = event.clientX - container.getBoundingClientRect().left;
-            let offsetY = event.clientY - container.getBoundingClientRect().top;
+                // Initialize view
+                function updateView() {
+                    svgElement.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+                }
 
-            let prevScale = scale;
+                // Zoom in and out
+                container.addEventListener('wheel', function(event) {
+                    event.preventDefault();
 
-            if (event.deltaY < 0) {
-                scale *= 1.1;
-            } else {
-                scale /= 1.1;
-            }
+                    let offsetX = event.clientX - container.getBoundingClientRect().left;
+                    let offsetY = event.clientY - container.getBoundingClientRect().top;
 
-            panX += offsetX * (1 - prevScale / scale);
-            panY += offsetY * (1 - prevScale / scale);
+                    let prevScale = scale;
 
-            updateView();
-        });
+                    if (event.deltaY < 0) {
+                        scale *= 1.1;
+                    } else {
+                        scale /= 1.1;
+                    }
 
-        // Drag to move
-        let dragging = false;
-        let lastX;
-        let lastY;
+                    panX += offsetX * (1 - prevScale / scale);
+                    panY += offsetY * (1 - prevScale / scale);
 
-        container.addEventListener('mousedown', function(event) {
-            dragging = true;
-            lastX = event.clientX;
-            lastY = event.clientY;
-        });
+                    updateView();
+                });
 
-        window.addEventListener('mouseup', function() {
-            dragging = false;
-        });
+                // Drag to move
+                let dragging = false;
+                let lastX;
+                let lastY;
 
-        window.addEventListener('mousemove', function(event) {
-            if (dragging) {
-                panX += event.clientX - lastX;
-                panY += event.clientY - lastY;
-                lastX = event.clientX;
-                lastY = event.clientY;
+                container.addEventListener('mousedown', function(event) {
+                    dragging = true;
+                    lastX = event.clientX;
+                    lastY = event.clientY;
+                });
 
+                window.addEventListener('mouseup', function() {
+                    dragging = false;
+                });
+
+                window.addEventListener('mousemove', function(event) {
+                    if (dragging) {
+                        panX += event.clientX - lastX;
+                        panY += event.clientY - lastY;
+                        lastX = event.clientX;
+                        lastY = event.clientY;
+
+                        updateView();
+                    }
+                });
+
+                // Initialize
                 updateView();
-            }
-        });
-
-        // Initialize
-        updateView();
+            })
+            .catch(error => {
+                console.error('Error loading SVG:', error);
+            });
     </script>
 </body>
 </html>
