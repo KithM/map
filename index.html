@@ -2,92 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SVG Zoom and Pan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US State Battle Royale</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- If you use Turf.js for geospatial operations, add it too -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script> -->
     <style>
-        #container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-        }
+        /* Add your CSS styling here */
+        body { font-family: Arial, sans-serif; }
+        svg { border: 1px solid #aaa; }
     </style>
 </head>
 <body>
-    <div id="container">
-        <!-- SVG will be inserted here -->
-    </div>
-
-    <script>
-        fetch('gameMap.svg')
-            .then(response => response.text())
-            .then(data => {
-                const container = document.getElementById('container');
-                container.innerHTML = data;
-
-                const svg = document.querySelector('svg');
-                let viewBox = svg.viewBox.baseVal;
-
-                let scale = 1;
-                let panX = 0;
-                let panY = 0;
-
-                function updateView() {
-                    svg.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-                }
-
-                // Zoom with scroll wheel
-                container.addEventListener('wheel', function(event) {
-                    event.preventDefault();
-
-                    const x = event.clientX - container.getBoundingClientRect().left;
-                    const y = event.clientY - container.getBoundingClientRect().top;
-
-                    const oldScale = scale;
-
-                    if (event.deltaY > 0) {
-                        scale *= 0.9;
-                    } else {
-                        scale *= 1.1;
-                    }
-
-                    panX += x * (1 - oldScale / scale);
-                    panY += y * (1 - oldScale / scale);
-
-                    updateView();
-                });
-
-                // Pan with drag
-                let dragging = false;
-                let lastX, lastY;
-
-                container.addEventListener('mousedown', function(event) {
-                    dragging = true;
-                    lastX = event.clientX;
-                    lastY = event.clientY;
-                });
-
-                window.addEventListener('mouseup', function() {
-                    dragging = false;
-                });
-
-                window.addEventListener('mousemove', function(event) {
-                    if (dragging) {
-                        panX += event.clientX - lastX;
-                        panY += event.clientY - lastY;
-
-                        lastX = event.clientX;
-                        lastY = event.clientY;
-
-                        updateView();
-                    }
-                });
-
-                // Initialize
-                updateView();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    </script>
+    <h1>US State Battle Royale</h1>
+    <svg width="960" height="600"></svg> <!-- You can adjust the size as needed -->
+    <script src="scripts.js"></script>
 </body>
 </html>
